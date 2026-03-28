@@ -1,0 +1,20 @@
+# Ignore heavy datasets
+*.csv
+data/
+*.zip
+
+# Ignore Jupyter and Notebooks
+notebooks/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+env/
+.env
+
+# Python compilation
+__pycache__/
+*.py[cod]
+
+# Local configs
+.vscode/

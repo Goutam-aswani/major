@@ -1,0 +1,165 @@
+# Project Configuration — ML Credit Scoring System
+project:
+  name: "ML-Powered Credit Scoring System"
+  version: "2.0.0"
+  description: "Predict financial credibility (Good/Standard/Poor) using behavioral and income data, proving ML outperforms traditional CIBIL scoring"
+
+# Data Configuration
+data:
+  raw_data_path: "data/raw/"
+  processed_data_path: "data/processed/"
+  train_file: "train.csv"          # << Your uploaded dataset
+  target_column: "Credit_Score"   # << 3-class: Good, Standard, Poor
+
+  # Columns to DROP (PII + non-predictive)
+  drop_columns:
+    - "ID"
+    - "Customer_ID"
+    - "SSN"
+    - "Name"
+    - "Month"               # Temporal noise, not causally linked
+
+  # Column types for the Credit Score dataset
+  numerical_columns:
+    - "Age"
+    - "Annual_Income"
+    - "Monthly_Inhand_Salary"
+    - "Num_Bank_Accounts"
+    - "Num_Credit_Card"
+    - "Interest_Rate"
+    - "Num_of_Loan"
+    - "Delay_from_due_date"
+    - "Num_of_Delayed_Payment"
+    - "Changed_Credit_Limit"
+    - "Num_Credit_Inquiries"
+    - "Outstanding_Debt"
+    - "Credit_Utilization_Ratio"
+    - "Credit_History_Months"     # Engineered from Credit_History_Age
+    - "Total_EMI_per_month"
+    - "Amount_invested_monthly"
+    - "Monthly_Balance"
+    - "Debt_to_Income_Ratio"      # Engineered: Outstanding_Debt / Annual_Income
+    - "Savings_Ratio"             # Engineered: Monthly_Balance / Monthly_Inhand_Salary
+    - "Loan_Type_Count"           # Engineered: count of distinct loan types
+
+  categorical_columns:
+    - "Occupation"
+    - "Credit_Mix"
+    - "Payment_of_Min_Amount"
+    - "Payment_Behaviour"
+
+# Statistical Testing
+statistical_tests:
+  chi_square:
+    alpha: 0.05
+    min_expected_frequency: 5
+  cramers_v:
+    high_correlation_threshold: 0.7
+  anova:
+    alpha: 0.05
+
+# Feature Engineering
+feature_engineering:
+  missing_value_strategy: "median"
+  categorical_encoding: "label"   # Label encoding for tree models
+  scaling_method: "robust"        # Robust to outliers in financial data
+  create_interactions: false      # Disabled — tree models handle these natively
+  polynomial_degree: 0
+
+# Feature Selection
+feature_selection:
+  methods:
+    - statistical
+    - mutual_information
+    - rfe
+    - l1_regularization
+    - tree_based
+  top_k_features: 12             # Top 12 from ~20 available features
+
+# Models Configuration
+models:
+  cross_validation:
+    n_splits: 5
+    shuffle: true
+    random_state: 42
+
+  logistic_regression:
+    max_iter: 1000
+    C: 1.0
+    random_state: 42
+
+  decision_tree:
+    max_depth: 8
+    min_samples_split: 50
+    random_state: 42
+
+  random_forest:
+    n_estimators: 200
+    max_depth: 10
+    min_samples_split: 30
+    random_state: 42
+    n_jobs: -1
+
+  xgboost:
+    n_estimators: 200
+    max_depth: 6
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    random_state: 42
+
+  svm:
+    kernel: "rbf"
+    C: 1.0
+    probability: true        # Required for ROC-AUC
+    random_state: 42
+
+  knn:
+    n_neighbors: 7
+    weights: "distance"
+
+  neural_network:
+    hidden_layer_sizes: [128, 64, 32]
+    activation: "relu"
+    max_iter: 500
+    random_state: 42
+
+# Evaluation Metrics
+evaluation:
+  metrics:
+    - accuracy
+    - precision_macro
+    - recall_macro
+    - f1_macro
+    - roc_auc_ovr      # One-vs-Rest for 3-class problem
+
+# CIBIL Baseline Comparison
+cibil_baseline:
+  # Features a traditional rule-based CIBIL model would use
+  features:
+    - "Num_of_Loan"
+    - "Delay_from_due_date"
+    - "Outstanding_Debt"
+    - "Num_of_Delayed_Payment"
+  model: "logistic_regression"   # Simple model, as CIBIL uses a fixed formula
+
+# Output Configuration
+output:
+  results_path: "results/"
+  figures_path: "results/figures/"
+  models_path: "results/models/"
+  reports_path: "results/reports/"
+  save_models: true
+  save_figures: true
+
+# Interpretability
+interpretability:
+  use_shap: true
+  use_lime: true
+  n_samples_explain: 3          # Show 3 customers (one per class)
+  score_range:
+    min: 300
+    max: 900
+
+# Random Seed
+random_state: 42

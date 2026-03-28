@@ -1,0 +1,15 @@
+# Ignore heavy datasets and training artifacts to keep Vercel lambda under 250MB
+*.csv
+data/
+notebooks/
+tests/
+__pycache__/
+venv/
+.env
+export_scaler.py
+predict_test.py
+run_interpret.py
+src/data/
+src/features/
+src/models/train_model.py
+src/models/interpret.py

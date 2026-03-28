@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Credit Scorer | Neural Finance</title>
+    <meta name="description" content="Next-generation ML credit scoring engine replacing traditional CIBIL with behavioral analysis.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- Grain Texture -->
+    <div class="grain"></div>
+
+    <!-- 6 Layered Blobs -->
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="blob b4"></div>
+    <div class="blob b5"></div>
+    <div class="blob b6"></div>
+
+    <div class="wrapper">
+
+        <header class="site-header">
+            <div class="header-badge"><i class="fa-solid fa-brain"></i> XGBoost — 74.1% Accuracy</div>
+            <h1 id="hero-title">Next-Gen ML Credit Engine</h1>
+            <p class="hero-sub">Replacing exclusionary CIBIL with multi-dimensional behavioral intelligence. <em>+60.9% more accurate. 100% inclusive.</em></p>
+        </header>
+
+        <div class="dashboard">
+
+            <!-- LEFT: Input Form -->
+            <section class="panel form-panel">
+                <div class="panel-label"><i class="fa-solid fa-sitemap"></i> Neural Profile Matrix</div>
+
+                <form id="predict-form" novalidate>
+
+                    <!-- Accordion: Income -->
+                    <div class="accordion active" id="acc-income">
+                        <button type="button" class="acc-header">
+                            <span><i class="fa-solid fa-coins"></i> Income</span>
+                            <i class="fa-solid fa-chevron-down caret"></i>
+                        </button>
+                        <div class="acc-body">
+                            <div class="field-row">
+                                <div class="field">
+                                    <input type="number" id="Annual_Income" value="65000" placeholder=" " autocomplete="off">
+                                    <label for="Annual_Income">Annual Income (₹)</label>
+                                </div>
+                                <div class="field">
+                                    <input type="number" id="Monthly_Inhand_Salary" value="5400" placeholder=" " autocomplete="off">
+                                    <label for="Monthly_Inhand_Salary">Monthly In-hand (₹)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion: Debt -->
+                    <div class="accordion" id="acc-debt">
+                        <button type="button" class="acc-header">
+                            <span><i class="fa-solid fa-scale-unbalanced-flip"></i> Debt</span>
+                            <i class="fa-solid fa-chevron-down caret"></i>
+                        </button>
+                        <div class="acc-body">
+                            <div class="field-row">
+                                <div class="field">
+                                    <input type="number" id="Total_EMI_per_month" value="1200" placeholder=" " autocomplete="off">
+                                    <label for="Total_EMI_per_month">Total EMI / Month (₹)</label>
+                                </div>
+                                <div class="field">
+                                    <input type="number" id="Outstanding_Debt" value="2500" placeholder=" " autocomplete="off">
+                                    <label for="Outstanding_Debt">Outstanding Debt (₹)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion: Behavior -->
+                    <div class="accordion" id="acc-behavior">
+                        <button type="button" class="acc-header">
+                            <span><i class="fa-solid fa-chart-line"></i> Behavior</span>
+                            <i class="fa-solid fa-chevron-down caret"></i>
+                        </button>
+                        <div class="acc-body">
+                            <div class="field-row">
+                                <div class="field">
+                                    <input type="number" id="Delay_from_due_date" value="4" placeholder=" " autocomplete="off">
+                                    <label for="Delay_from_due_date">Delay from Due Date (Days)</label>
+                                </div>
+                                <div class="field">
+                                    <input type="number" id="Interest_Rate" value="12" step="0.1" placeholder=" " autocomplete="off">
+                                    <label for="Interest_Rate">Interest Rate (%)</label>
+                                </div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field">
+                                    <input type="number" id="Changed_Credit_Limit" value="10.5" step="0.1" placeholder=" " autocomplete="off">
+                                    <label for="Changed_Credit_Limit">Changed Credit Limit (%)</label>
+                                </div>
+                                <div class="field select-wrap">
+                                    <select id="Payment_of_Min_Amount">
+                                        <option value="No" selected>No — Pays Full Balance</option>
+                                        <option value="Yes">Yes — Minimum Only</option>
+                                        <option value="Not Meaningful">N/A</option>
+                                    </select>
+                                    <label for="Payment_of_Min_Amount">Min Amount Paid?</label>
+                                    <i class="fa-solid fa-chevron-down sel-caret"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion: History -->
+                    <div class="accordion" id="acc-history">
+                        <button type="button" class="acc-header">
+                            <span><i class="fa-solid fa-clock-rotate-left"></i> History</span>
+                            <i class="fa-solid fa-chevron-down caret"></i>
+                        </button>
+                        <div class="acc-body">
+                            <div class="field-row">
+                                <div class="field">
+                                    <input type="number" id="Credit_History_Months" value="84" placeholder=" " autocomplete="off">
+                                    <label for="Credit_History_Months">Credit History (Months)</label>
+                                </div>
+                                <div class="field">
+                                    <input type="number" id="Num_Credit_Inquiries" value="2" placeholder=" " autocomplete="off">
+                                    <label for="Num_Credit_Inquiries">Credit Inquiries</label>
+                                </div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field">
+                                    <input type="number" id="Num_of_Loan" value="2" placeholder=" " autocomplete="off">
+                                    <label for="Num_of_Loan">No. of Loans</label>
+                                </div>
+                                <div class="field">
+                                    <input type="number" id="Num_Credit_Card" value="3" placeholder=" " autocomplete="off">
+                                    <label for="Num_Credit_Card">No. of Credit Cards</label>
+                                </div>
+                            </div>
+                            <div class="field-row">
+                                <div class="field select-wrap full">
+                                    <select id="Credit_Mix">
+                                        <option value="Good">Good (Diverse Mix)</option>
+                                        <option value="Standard" selected>Standard</option>
+                                        <option value="Bad">Bad (One-dimensional)</option>
+                                    </select>
+                                    <label for="Credit_Mix">Credit Mix Profile</label>
+                                    <i class="fa-solid fa-chevron-down sel-caret"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="run-btn">
+                        <span class="btn-label">INITIALIZE PREDICTION</span>
+                        <i class="fa-solid fa-microchip btn-icon"></i>
+                    </button>
+
+                </form>
+            </section>
+
+            <!-- RIGHT: Score Display -->
+            <section class="panel score-panel">
+
+                <div class="gauge-zone">
+                    <div class="ripple-ring" id="ripple-ring"></div>
+                    <div class="gauge-wrap">
+                        <svg viewBox="0 0 160 160" class="gauge-svg" id="gauge-svg">
+                            <defs>
+                                <linearGradient id="gaugeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#ef4444"/>
+                                    <stop offset="40%" stop-color="#f59e0b"/>
+                                    <stop offset="75%" stop-color="#10b981"/>
+                                    <stop offset="100%" stop-color="#00f0ff"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="gauge-track" cx="80" cy="80" r="70"/>
+                            <circle class="gauge-fill" id="gauge-fill" cx="80" cy="80" r="70"/>
+                        </svg>
+                        <div class="gauge-center">
+                            <span class="score-num" id="target-score">—</span>
+                            <span class="score-max">/ 900</span>
+                        </div>
+                    </div>
+                    <div class="band-badge" id="band-badge">AWAITING INPUT</div>
+                </div>
+
+                <!-- Hex Metric Cards -->
+                <div class="hex-row">
+                    <div class="hex-card" id="card-dti">
+                        <div class="hex-inner">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                            <span class="hex-label">DTI</span>
+                            <span class="hex-val" id="dti-val">—</span>
+                        </div>
+                    </div>
+                    <div class="hex-card" id="card-emi">
+                        <div class="hex-inner">
+                            <i class="fa-solid fa-wallet"></i>
+                            <span class="hex-label">EMI Burden</span>
+                            <span class="hex-val" id="emi-val">—</span>
+                        </div>
+                    </div>
+                    <div class="hex-card" id="card-age">
+                        <div class="hex-inner">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                            <span class="hex-label">Credit Age</span>
+                            <span class="hex-val" id="age-val">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights -->
+                <div class="insights-box">
+                    <div class="insights-title">
+                        <i class="fa-solid fa-network-wired"></i>
+                        Neural Rationale
+                    </div>
+                    <ul class="rationale-list" id="rationale-list">
+                        <li class="idle-hint">System standing by — initialize a prediction to activate.</li>
+                    </ul>
+                </div>
+
+            </section>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
