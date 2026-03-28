@@ -128,4 +128,4 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def serve_index():
-    return FileResponse("static/index.html")
+    return FileResponse("index.html")
