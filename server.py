@@ -2,6 +2,7 @@ import os
 import sys
 import pickle
 import json
+import xgboost
 import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -20,8 +21,8 @@ BEST_FEATURES = [
 
 print("Loading model and JSON scaler weights...")
 try:
-    with open("results/models/XGBoost.pkl", "rb") as f:
-        model = pickle.load(f)
+    model = xgboost.XGBClassifier()
+    model.load_model("results/models/XGBoost.json")
     with open("results/models/scaler_weights.json", "r") as f:
         weights = json.load(f)
         
