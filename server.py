@@ -1,19 +1,15 @@
 import os
 import sys
 import pickle
-import pandas as pd
+import json
 import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-import uvicorn
 
-
-# Define FastAPI app
 app = FastAPI(title="ML Credit Scorer")
 
-# Ordered feature list exact as expected by XGBoost
 BEST_FEATURES = [
     'Interest_Rate', 'Num_Credit_Card', 'Delay_from_due_date',
     'Num_Credit_Inquiries', 'Credit_Mix', 'Outstanding_Debt',
@@ -22,20 +18,20 @@ BEST_FEATURES = [
     'Num_of_Loan', 'Credit_History_Months'
 ]
 
-# Startup logic: Load model and construct Scaler
-print("Loading model and constructing Scaler...")
+print("Loading model and JSON scaler weights...")
 try:
     with open("results/models/XGBoost.pkl", "rb") as f:
         model = pickle.load(f)
-    with open("results/models/imputer.pkl", "rb") as f:
-        imputer = pickle.load(f)
-    with open("results/models/scaler.pkl", "rb") as f:
-        scaler = pickle.load(f)
+    with open("results/models/scaler_weights.json", "r") as f:
+        weights = json.load(f)
         
-    print("Startup sequence complete. Scaler and Model ready.")
+    imputer_stats = weights["imputer_statistics"]
+    scaler_center = weights["scaler_center"]
+    scaler_scale = weights["scaler_scale"]
     
+    print("Startup sequence complete.")
 except Exception as e:
-    print(f"Error loading model or scaler: {e}")
+    print(f"Error loading model or weights: {e}")
     sys.exit(1)
 
 class CustomerData(BaseModel):
@@ -70,41 +66,48 @@ def score_to_band(score: int) -> str:
 @app.post("/api/predict")
 async def predict_score(data: CustomerData):
     try:
-        # Categorical Encodings
         mix_map = {"Bad": 0, "Standard": 1, "Good": 2}
         min_map = {"Yes": 1, "No": 0, "Not Meaningful": 0.5}
 
         encoded_mix = mix_map.get(data.Credit_Mix, 1)
         encoded_min = min_map.get(data.Payment_of_Min_Amount, 0.5)
 
-        # Engineered features
         dti = data.Outstanding_Debt / data.Annual_Income if data.Annual_Income > 0 else 0
         emi = data.Total_EMI_per_month / data.Monthly_Inhand_Salary if data.Monthly_Inhand_Salary > 0 else 0
 
-        # Construct DataFrame directly in the exact feature order
-        feature_dict = {
-            'Interest_Rate': [data.Interest_Rate],
-            'Num_Credit_Card': [data.Num_Credit_Card],
-            'Delay_from_due_date': [data.Delay_from_due_date],
-            'Num_Credit_Inquiries': [data.Num_Credit_Inquiries],
-            'Credit_Mix': [encoded_mix],
-            'Outstanding_Debt': [data.Outstanding_Debt],
-            'Payment_of_Min_Amount': [encoded_min],
-            'Debt_to_Income_Ratio': [dti],
-            'Changed_Credit_Limit': [data.Changed_Credit_Limit],
-            'EMI_Burden_Ratio': [emi],
-            'Num_of_Loan': [data.Num_of_Loan],
-            'Credit_History_Months': [data.Credit_History_Months]
-        }
+        # Construct pure python array matching exact ordered features
+        raw_values = [
+            data.Interest_Rate,
+            data.Num_Credit_Card,
+            data.Delay_from_due_date,
+            data.Num_Credit_Inquiries,
+            encoded_mix,
+            data.Outstanding_Debt,
+            encoded_min,
+            dti,
+            data.Changed_Credit_Limit,
+            emi,
+            data.Num_of_Loan,
+            data.Credit_History_Months
+        ]
+
+        # Manual Impute & Scale (Saves 350MB of Scikit-Learn + Scipy + Pandas)
+        scaled_features = []
+        for i in range(len(raw_values)):
+            val = raw_values[i]
+            
+            # 1. Impute NaNs with median statistic
+            if val is None or np.isnan(val):
+                val = imputer_stats[i]
+                
+            # 2. Scale via RobustScaler formula (X - center) / scale
+            scaled_val = (val - scaler_center[i]) / scaler_scale[i] if scaler_scale[i] != 0 else val
+            scaled_features.append(scaled_val)
+            
+        # Predict directly using numpy 2D array
+        X_in = np.array([scaled_features])
+        probas = model.predict_proba(X_in)[0]
         
-        df_in = pd.DataFrame(feature_dict)[BEST_FEATURES]
-        
-        # KEY FIX: Scale the incoming API data exactly how the model was trained!
-        df_in_imputed = imputer.transform(df_in)
-        df_in_scaled = scaler.transform(df_in_imputed)
-        
-        # Predict
-        probas = model.predict_proba(df_in_scaled)[0]
         score = compute_ml_score(probas)
         band = score_to_band(score)
 
@@ -120,14 +123,9 @@ async def predict_score(data: CustomerData):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# Mount static frontend
 os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def serve_index():
     return FileResponse("static/index.html")
-
-if __name__ == "__main__":
-    print("Starting ML Score Server on http://localhost:8000")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
