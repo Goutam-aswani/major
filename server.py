@@ -123,8 +123,16 @@ async def predict_score(data: CustomerData):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-os.makedirs("static", exist_ok=True)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Static serving for root assets
+app.mount("/static", StaticFiles(directory="."), name="static")
+
+@app.get("/style.css")
+def serve_css():
+    return FileResponse("style.css", media_type="text/css")
+
+@app.get("/script.js")
+def serve_js():
+    return FileResponse("script.js", media_type="application/javascript")
 
 @app.get("/")
 def serve_index():
